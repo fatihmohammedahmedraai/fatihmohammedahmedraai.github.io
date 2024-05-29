@@ -1,160 +1,87 @@
-<!DOCTYPE html>
-<html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Firebase CRUD</title>
+<!doctype html>
+<head>
+  <meta charset="utf-8">
 
-    <!-- BOOTSWATCH -->
-    <link
-      rel="stylesheet"
-      href="https://bootswatch.com/5/yeti/bootstrap.min.css"
-    />
-  </head>
+  <title>KoЯn Fan Page</title>
 
-  <body class="bg-dark">
-    <!-- ADD TASK -->
-    <div class="container p-4">
-      <div class="row">
-        <div class="col-md-6">
-          <div class="card">
-            <div class="card-body">
-              <h1 class="h4">Add Task</h1>
+  <!-- Bootstrap CSS -->
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css">
+  <!-- font awesome -->
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.5.0/css/font-awesome.min.css">
+  <!-- jQuery -->
+  <script src="https://code.jquery.com/jquery-1.12.3.min.js" integrity="sha256-aaODHAgvwQW1bFOGXMeX+pC4PZIPsvn2h1sArYOhgXQ=" crossorigin="anonymous"></script>
 
-              <form id="task-form">
-                <label for="title">Title:</label>
-                <input
-                  type="text"
-                  id="task-title"
-                  class="form-control mb-3"
-                  class="My First Title"
-                  placeholder="Task Title"
-                  autofocus
-                />
+  <!-- Bootstrap JS -->
+  <script type="text/javascript" src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/js/bootstrap.min.js"></script>
 
-                <label for="description">Description:</label>
-                <textarea
-                  id="task-description"
-                  rows="3"
-                  class="form-control mb-3"
-                  placeholder="Task Description"
-                ></textarea>
+  <!-- Firebase CDN -->
+  <script src="https://www.gstatic.com/firebasejs/live/3.0/firebase.js"></script>
 
-                <button class="btn btn-primary" id="btn-task-form">Save</button>
-              </form>
+  <!-- js -->
+  <script src="app.js"></script>
+
+  <style>
+    body {
+      background:
+      radial-gradient(hsl(0, 100%, 27%) 4%, hsl(0, 100%, 18%) 9%, hsla(0, 100%, 20%, 0) 9%) 0 0,
+      radial-gradient(hsl(0, 100%, 27%) 4%, hsl(0, 100%, 18%) 8%, hsla(0, 100%, 20%, 0) 10%) 50px 50px,
+      radial-gradient(hsla(0, 100%, 30%, 0.8) 20%, hsla(0, 100%, 20%, 0)) 50px 0,
+      radial-gradient(hsla(0, 100%, 30%, 0.8) 20%, hsla(0, 100%, 20%, 0)) 0 50px,
+      radial-gradient(hsla(0, 100%, 20%, 1) 35%, hsla(0, 100%, 20%, 0) 60%) 50px 0,
+      radial-gradient(hsla(0, 100%, 20%, 1) 35%, hsla(0, 100%, 20%, 0) 60%) 100px 50px,
+      radial-gradient(hsla(0, 100%, 15%, 0.7), hsla(0, 100%, 20%, 0)) 0 0,
+      radial-gradient(hsla(0, 100%, 15%, 0.7), hsla(0, 100%, 20%, 0)) 50px 50px,
+      linear-gradient(45deg, hsla(0, 100%, 20%, 0) 49%, hsla(0, 100%, 0%, 1) 50%, hsla(0, 100%, 20%, 0) 70%) 0 0,
+      linear-gradient(-45deg, hsla(0, 100%, 20%, 0) 49%, hsla(0, 100%, 0%, 1) 50%, hsla(0, 100%, 20%, 0) 70%) 0 0;
+      background-color: #300;
+      background-size: 100px 100px;
+    }
+
+    .fa {
+      cursor: pointer;
+      padding-left: 3px;
+    }
+  </style>
+</head>
+
+<body>
+
+  <nav class="navbar navbar-inverse">
+    <div class="container-fluid">
+      <div class="navbar-header text-danger">
+        <h1>KoЯn Fan Page</h1>
+      </div>
+    </div>
+  </nav>
+
+  <div class="container">
+    <div class="panel-group">
+      <div class="panel panel-danger">
+        <div class="panel-heading">Post a message for all fans of KoЯn AND KoЯn to see!</div>
+        <div class="panel-body">
+          <form action="" id="message-form">
+            <div class="form-group">
+              <label>Message:</label>
+              <textarea id="message" type="text" class="form-control"></textarea>
             </div>
-          </div>
+            <button class="btn btn-default">Post to board</button>
+          </form>
         </div>
-        <!-- Tasks List -->
-        <div class="col-md-6" id="tasks-container"></div>
       </div>
     </div>
 
-    <!-- CUSTOM CODE -->
-    <script>
-
-
-import {
-  onGetTasks,
-  saveTask,
-  deleteTask,
-  getTask,
-  updateTask,
-  getTasks,
-} from "firebase.js";
-
-const taskForm = document.getElementById("task-form");
-const tasksContainer = document.getElementById("tasks-container");
-
-let editStatus = false;
-let id = "";
-
-window.addEventListener("DOMContentLoaded", async (e) => {
-  // const querySnapshot = await getTasks();
-  // querySnapshot.forEach((doc) => {
-  //   console.log(doc.data());
-  // });
-
-  onGetTasks((querySnapshot) => {
-    tasksContainer.innerHTML = "";
-
-    querySnapshot.forEach((doc) => {
-      const task = doc.data();
-
-      tasksContainer.innerHTML += `
-      <div class="card card-body mt-2 border-primary">
-    <h3 class="h5">${task.title}</h3>
-    <p>${task.description}</p>
-    <div>
-      <button class="btn btn-primary btn-delete" data-id="${doc.id}">
-        🗑 Delete
-      </button>
-      <button class="btn btn-secondary btn-edit" data-id="${doc.id}">
-        🖉 Edit
-      </button>
+    <div class="panel-group">
+      <div class="panel panel-default">
+        <div class="panel-heading">Message Board</div>
+        <div class="panel-body">
+          <ul class="message-board">
+          </ul>
+        </div>
+      </div>
     </div>
-  </div>`;
-    });
 
-    const btnsDelete = tasksContainer.querySelectorAll(".btn-delete");
-    btnsDelete.forEach((btn) =>
-      btn.addEventListener("click", async ({ target: { dataset } }) => {
-        try {
-          await deleteTask(dataset.id);
-        } catch (error) {
-          console.log(error);
-        }
-      })
-    );
+  </div>
 
-    const btnsEdit = tasksContainer.querySelectorAll(".btn-edit");
-    btnsEdit.forEach((btn) => {
-      btn.addEventListener("click", async (e) => {
-        try {
-          const doc = await getTask(e.target.dataset.id);
-          const task = doc.data();
-          taskForm["task-title"].value = task.title;
-          taskForm["task-description"].value = task.description;
+</body>
 
-          editStatus = true;
-          id = doc.id;
-          taskForm["btn-task-form"].innerText = "Update";
-        } catch (error) {
-          console.log(error);
-        }
-      });
-    });
-  });
-});
-
-taskForm.addEventListener("submit", async (e) => {
-  e.preventDefault();
-
-  const title = taskForm["task-title"];
-  const description = taskForm["task-description"];
-
-  try {
-    if (!editStatus) {
-      await saveTask(title.value, description.value);
-    } else {
-      await updateTask(id, {
-        title: title.value,
-        description: description.value,
-      });
-
-      editStatus = false;
-      id = "";
-      taskForm["btn-task-form"].innerText = "Save";
-    }
-
-    taskForm.reset();
-    title.focus();
-  } catch (error) {
-    console.log(error);
-  }
-});
-
-          
-    </script>
-  </body>
 </html>
