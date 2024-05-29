@@ -51,70 +51,57 @@
 
   <script src="https://www.gstatic.com/firebasejs/4.3.0/firebase.js"></script>
   <script>
-   const firebaseConfig = {
-  apiKey: "AIzaSyDIU4otdbs35G88kNpdJKZIttWTNMd-qGs",
-  authDomain: "contactform-f0a28.firebaseapp.com",
-  databaseURL: "https://contactform-f0a28-default-rtdb.firebaseio.com",
-  projectId: "contactform-f0a28",
-  storageBucket: "contactform-f0a28.appspot.com",
-  messagingSenderId: "467495307485",
-  appId: "1:467495307485:web:1042ec4896a426c12b3334",
-    
+   
+  $delBtn.innerHTML = "Delete";
+  $delBtn.setAttribute("child-key", snap.key);
+  $delBtn.addEventListener('click', deleteUser);
+  
+  $editBtn.innerHTML = "Edit";
+  $editBtn.setAttribute("child-key", snap.key);
+  $editBtn.addEventListener("click", editUser);
+  
+  
+  $li.innerHTML = user.name;    // user.name == "bingo" or "hey"
+  $li.setAttribute("child-key", snap.key);
+  $li.addEventListener("click", userClicked);
+  
+  container.append($li);
+  $li.append($delBtn);
+  $li.append($editBtn);
+});
 
-  };
-
-firebase.initializeApp(firebaseConfig);
-
-// Reference messages collection
-var messagesRef = firebase.database().ref('messages');
-
-// Listen for form submit
-document.getElementById('contactForm').addEventListener('submit', submitForm);
-
-// Submit form
-function submitForm(e){
+function userClicked(e){
   e.preventDefault();
-
-  // Get values
-  var name = getInputVal('name');
-  var company = getInputVal('company');
-  var email = getInputVal('email');
-  var phone = getInputVal('phone');
-  var message = getInputVal('message');
-
-  // Save message
-  saveMessage(name, company, email, phone, message);
-
-  // Show alert
-  document.querySelector('.alert').style.display = 'block';
-
-  // Hide alert after 3 seconds
-  setTimeout(function(){
-    document.querySelector('.alert').style.display = 'none';
-  },3000);
-
-  // Clear form
-  document.getElementById('contactForm').reset();
+  
+  var userID = e.target.getAttribute("child-key");
+  const userRef = dbRef.child(`users/${userID}`);
+  
+  const userDetail = document.getElementById("user-detail");
+  userDetail.innerHTML = "";   // empty old data
+  
+  userRef.on("child_added", function(snap){
+    var $p = document.createElement("p");
+   
+    $p.innerHTML = `${snap.key}: ${snap.val()}`;
+    userDetail.append($p);
+  })   
 }
 
-// Function to get get form values
-function getInputVal(id){
-  return document.getElementById(id).value;
-}
 
-// Save message to firebase
-function saveMessage(name, company, email, phone, message){
-  var newMessageRef = messagesRef.push();
-  newMessageRef.set({
-    name: name,
-    company:company,
-    email:email,
-    phone:phone,
-    message:message
-  });
-}
+// add-Users in DataBase
 
-              
+var form = document.getElementById("addForm");
+form.addEventListener("submit", addUser);
+
+function addUser(e){
+  e.preventDefault();
+  
+  const  userRef = dbRef.child('users');
+  var userInput = document.getElementsByClassName('user-input');
+  
+  let newUser = {};   // empty obj to store data in it before pushing it to Database
+  
+  for(var i = 0; i < userInput.length; i++){
   </script>
 </body>
 </html>
