@@ -1,109 +1,160 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta http-equiv="X-UA-Compatible" content="ie=edge">
-  <title>Firebase tutorial from Yashwant Pathak</title>
-  <link href="https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css" rel="stylesheet" integrity="sha384-wvfXpqpZZVQGK6TAh5PVlGOfQNHSoD2xbE+QkPxCAFlNEevoEH3Sl0sibVcOQVnN" crossorigin="anonymous">
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/3.5.2/animate.css" />
-  <link rel="stylesheet" href="style.css">
-</head>
-<body>
-  <div class="container></div>
-    <div class="user-detail></div>
-  <div class="container">
-    <h1 class="brand"><span>FireBase</span> Sample By Yashwant Pathak</h1>
-    <div class="wrapper">
-      <div class="company-info">
-       
-       
-      </div>
-      <div class="contact">
-        <h3>Email Us</h3>
-        <div class="alert">Your message has been sent</div>
-        <form id="contactForm">
-          <p>
-            <label>Name</label>
-            <input type="text" name="name" id="name" required>
-          </p>
-          <p>
-            <label>Company</label>
-            <input type="text" name="company" id="company">
-          </p>
-          <p>
-            <label>Email Address</label>
-            <input type="email" name="email" id="email" required>
-          </p>
-          <p>
-            <label>Phone Number</label>
-            <input type="text" name="phone" id="phone">
-          </p>
-          <p class="full">
-            <label>Message</label>
-            <textarea name="message" rows="5" id="message"></textarea>
-          </p>
-          <p class="full">
-            <button type="submit">Submit</button>
-          </p>
-        </form>
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Firebase CRUD</title>
+
+    <!-- BOOTSWATCH -->
+    <link
+      rel="stylesheet"
+      href="https://bootswatch.com/5/yeti/bootstrap.min.css"
+    />
+  </head>
+
+  <body class="bg-dark">
+    <!-- ADD TASK -->
+    <div class="container p-4">
+      <div class="row">
+        <div class="col-md-6">
+          <div class="card">
+            <div class="card-body">
+              <h1 class="h4">Add Task</h1>
+
+              <form id="task-form">
+                <label for="title">Title:</label>
+                <input
+                  type="text"
+                  id="task-title"
+                  class="form-control mb-3"
+                  class="My First Title"
+                  placeholder="Task Title"
+                  autofocus
+                />
+
+                <label for="description">Description:</label>
+                <textarea
+                  id="task-description"
+                  rows="3"
+                  class="form-control mb-3"
+                  placeholder="Task Description"
+                ></textarea>
+
+                <button class="btn btn-primary" id="btn-task-form">Save</button>
+              </form>
+            </div>
+          </div>
+        </div>
+        <!-- Tasks List -->
+        <div class="col-md-6" id="tasks-container"></div>
       </div>
     </div>
-  </div>
 
-  <script src="https://www.gstatic.com/firebasejs/4.3.0/firebase.js"></script>
-  <script>
-   
-  $delBtn.innerHTML = "Delete";
-  $delBtn.setAttribute("child-key", snap.key);
-  $delBtn.addEventListener('click', deleteUser);
-  
-  $editBtn.innerHTML = "Edit";
-  $editBtn.setAttribute("child-key", snap.key);
-  $editBtn.addEventListener("click", editUser);
-  
-  
-  $li.innerHTML = user.name;    // user.name == "bingo" or "hey"
-  $li.setAttribute("child-key", snap.key);
-  $li.addEventListener("click", userClicked);
-  
-  container.append($li);
-  $li.append($delBtn);
-  $li.append($editBtn);
+    <!-- CUSTOM CODE -->
+    <script>
+
+
+import {
+  onGetTasks,
+  saveTask,
+  deleteTask,
+  getTask,
+  updateTask,
+  getTasks,
+} from "firebase.js";
+
+const taskForm = document.getElementById("task-form");
+const tasksContainer = document.getElementById("tasks-container");
+
+let editStatus = false;
+let id = "";
+
+window.addEventListener("DOMContentLoaded", async (e) => {
+  // const querySnapshot = await getTasks();
+  // querySnapshot.forEach((doc) => {
+  //   console.log(doc.data());
+  // });
+
+  onGetTasks((querySnapshot) => {
+    tasksContainer.innerHTML = "";
+
+    querySnapshot.forEach((doc) => {
+      const task = doc.data();
+
+      tasksContainer.innerHTML += `
+      <div class="card card-body mt-2 border-primary">
+    <h3 class="h5">${task.title}</h3>
+    <p>${task.description}</p>
+    <div>
+      <button class="btn btn-primary btn-delete" data-id="${doc.id}">
+        🗑 Delete
+      </button>
+      <button class="btn btn-secondary btn-edit" data-id="${doc.id}">
+        🖉 Edit
+      </button>
+    </div>
+  </div>`;
+    });
+
+    const btnsDelete = tasksContainer.querySelectorAll(".btn-delete");
+    btnsDelete.forEach((btn) =>
+      btn.addEventListener("click", async ({ target: { dataset } }) => {
+        try {
+          await deleteTask(dataset.id);
+        } catch (error) {
+          console.log(error);
+        }
+      })
+    );
+
+    const btnsEdit = tasksContainer.querySelectorAll(".btn-edit");
+    btnsEdit.forEach((btn) => {
+      btn.addEventListener("click", async (e) => {
+        try {
+          const doc = await getTask(e.target.dataset.id);
+          const task = doc.data();
+          taskForm["task-title"].value = task.title;
+          taskForm["task-description"].value = task.description;
+
+          editStatus = true;
+          id = doc.id;
+          taskForm["btn-task-form"].innerText = "Update";
+        } catch (error) {
+          console.log(error);
+        }
+      });
+    });
+  });
 });
 
-function userClicked(e){
+taskForm.addEventListener("submit", async (e) => {
   e.preventDefault();
-  
-  var userID = e.target.getAttribute("child-key");
-  const userRef = dbRef.child(`users/${userID}`);
-  
-  const userDetail = document.getElementById("user-detail");
-  userDetail.innerHTML = "";   // empty old data
-  
-  userRef.on("child_added", function(snap){
-    var $p = document.createElement("p");
-   
-    $p.innerHTML = `${snap.key}: ${snap.val()}`;
-    userDetail.append($p);
-  })   
-}
 
+  const title = taskForm["task-title"];
+  const description = taskForm["task-description"];
 
-// add-Users in DataBase
+  try {
+    if (!editStatus) {
+      await saveTask(title.value, description.value);
+    } else {
+      await updateTask(id, {
+        title: title.value,
+        description: description.value,
+      });
 
-var form = document.getElementById("addForm");
-form.addEventListener("submit", addUser);
+      editStatus = false;
+      id = "";
+      taskForm["btn-task-form"].innerText = "Save";
+    }
 
-function addUser(e){
-  e.preventDefault();
-  
-  const  userRef = dbRef.child('users');
-  var userInput = document.getElementsByClassName('user-input');
-  
-  let newUser = {};   // empty obj to store data in it before pushing it to Database
-  
-  for(var i = 0; i < userInput.length; i++){
-  </script>
-</body>
+    taskForm.reset();
+    title.focus();
+  } catch (error) {
+    console.log(error);
+  }
+});
+
+          
+    </script>
+  </body>
 </html>
